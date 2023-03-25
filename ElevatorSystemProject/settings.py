@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'admin',
+    'admins',
     'elevator',
     'floor'
 ]
@@ -89,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'elevatordb',
         'USER': 'postgres',
-        'PASSWORD': '<Enter your postgresql password>',
+        'PASSWORD': 'Namansharma@1',
         'HOST': 'localhost',
         'PORT': '5432',
     }
