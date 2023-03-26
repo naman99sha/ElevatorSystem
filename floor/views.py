@@ -32,3 +32,5 @@ def createFloors(request):
 
         except:
             return Response({"message":"Needs Basic Authorisation Headers, This action is open for admins only"},status=status.HTTP_401_UNAUTHORIZED)
+        
+# API For requesting a lift
