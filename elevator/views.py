@@ -111,3 +111,19 @@ class ElevatorGoDown(generics.GenericAPIView):
             return Response({"message":f"{elevator.label} Elevator went down 1 level to floor {elevator.currentFloor.floorNumber} "}, status=status.HTTP_200_OK)
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+class ChangeElevatorMoving(generics.GenericAPIView):
+
+    def post(self, request, label, *args, **kwargs):
+        try:
+            elevator = ElevatorModel.objects.get(label=label)
+            if elevator.moving:
+                elevator.moving = False
+                elevator.save()
+                return Response({"message":f"Elevator {elevator.label} is stopped"}, status=status.HTTP_200_OK)
+            else:
+                elevator.moving = True
+                elevator.save()
+                return Response({"message":f"Elevator {elevator.label} is moving"}, status=status.HTTP_200_OK)
+        except:
+            return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
