@@ -6,6 +6,7 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from .serializer import ElevatorSerializer
 import base64
+from floor.models import FloorModel
 # Create your views here.
 def checkForAuthentication(encoded):
     try:
@@ -60,5 +61,53 @@ class RequestListElevator(generics.GenericAPIView):
             for i in elevator.requestList.all():
                 temp.append(f"Floor Number {i.floorNumber}")
             return Response({"Request-List":temp},status=status.HTTP_200_OK)
+        except:
+            return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+class ElevatorGoUp(generics.GenericAPIView):
+
+    def post(self, request, label, *args, **kwargs):
+        try:
+            elevator = ElevatorModel.objects.get(label=label)
+            if elevator.currentFloor == None:
+                elevator.currentFloor = FloorModel.objects.get(floorNumber=1)
+                elevator.save()
+                if elevator.currentFloor in elevator.requestList.all():
+                    elevator.requestList.remove(elevator.currentFloor)
+                    elevator.save()
+            else:
+                try:
+                    elevator.currentFloor = FloorModel.objects.get(floorNumber=elevator.currentFloor.floorNumber + 1)
+                except:
+                    return Response({"message":f"Elevator {label} is already on top floor"}, status=status.HTTP_400_BAD_REQUEST)
+                elevator.save()
+                if elevator.currentFloor in elevator.requestList.all():
+                    elevator.requestList.remove(elevator.currentFloor)
+                    elevator.save()
+            return Response({"message":f"{elevator.label} Elevator went up 1 level to floor {elevator.currentFloor.floorNumber} "}, status=status.HTTP_200_OK)
+        except:
+            return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+class ElevatorGoDown(generics.GenericAPIView):
+
+    def post(self, request, label, *args, **kwargs):
+        try:
+            elevator = ElevatorModel.objects.get(label=label)
+            if elevator.currentFloor == None:
+                return Response({"message":f"Elevator {label} already on ground floor"},status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if elevator.currentFloor.floorNumber == 1:
+                    elevator.currentFloor = None
+                    elevator.save()
+                    if elevator.currentFloor in elevator.requestList.all():
+                        elevator.requestList.remove(elevator.currentFloor)
+                        elevator.save()
+                    return Response({"message":f"{elevator.label} Elevator went down 1 level to ground floor"}, status=status.HTTP_200_OK)
+                elevator.currentFloor = FloorModel.objects.get(floorNumber=elevator.currentFloor.floorNumber - 1)
+                elevator.save()
+                if elevator.currentFloor in elevator.requestList.all():
+                    elevator.requestList.remove(elevator.currentFloor)
+                    elevator.save()
+            return Response({"message":f"{elevator.label} Elevator went down 1 level to floor {elevator.currentFloor.floorNumber} "}, status=status.HTTP_200_OK)
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)

@@ -45,7 +45,7 @@ def nextDestinationForElevator(elevator):
         return False
 
 def assignOptimalElevator(floor):
-    elevatorList = ElevatorModel.objects.all()
+    elevatorList = ElevatorModel.objects.filter(status=True,moving=True)
     minDistance = 0
     assignedElevator = None
     for elevator in elevatorList:
