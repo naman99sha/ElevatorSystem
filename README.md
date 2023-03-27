@@ -14,15 +14,15 @@ An API based project created in django rest framework to manage an Elevator syst
 #### Setting up postgreSQL:
 - After installing and setting up the pgadmin for Postgres, create a database in it by the name of 'elevatordb' 
 
-insert image here
+![Postgres create db](https://user-images.githubusercontent.com/51481039/227950091-f1850819-9bfd-4877-9123-cb32732bf4e6.PNG)
 
 - Right Click on the PostgreSQL server, go to properties and under Connection tab you will see th e settings to connect to your database.
 
-insert image here
+![postgres connection properties](https://user-images.githubusercontent.com/51481039/227950162-d678f3ce-3521-4e48-9626-eec78224cc0e.PNG)
 
 - Go to settings.py file under the ElevatorSystemProject folder. In the below image a DATABASES setting is given. Add your password and port in that setting according to your password and port while setting up postgres
 
-insert image here
+![django settings](https://user-images.githubusercontent.com/51481039/227950209-45c10729-fc30-4f0f-b270-e02fdde3c4e4.PNG)
 
 #### Running the project:
 - 'cd' into the project directory.
