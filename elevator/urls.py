@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateElevator, RequestListElevator, ElevatorGoUp, ElevatorGoDown, ChangeElevatorMoving, ChangeElevatorStatus, GetElevatorCurrentFloor
+from .views import CreateElevator, RequestListElevator, ElevatorGoUp, ElevatorGoDown, ChangeElevatorMoving, ChangeElevatorStatus, GetElevatorCurrentFloor, OpenElevatorDoor, CloseElevatorDoor
 
 urlpatterns = [
     path("create",CreateElevator.as_view(),name="create-elevator"),
@@ -9,4 +9,6 @@ urlpatterns = [
     path("<label>/change-moving",ChangeElevatorMoving.as_view(),name="change-elevator-moving"),
     path("<label>/set-status",ChangeElevatorStatus.as_view(),name="set-status"),
     path("<label>/current-floor",GetElevatorCurrentFloor.as_view(),name="get-current-floor"),
+    path("<label>/open-door",OpenElevatorDoor.as_view(),name="open-elevator-door"),
+    path("<label>/close-door",CloseElevatorDoor.as_view(),name="close-elevator-door"),
 ]

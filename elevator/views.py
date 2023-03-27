@@ -163,3 +163,21 @@ class GetElevatorCurrentFloor(generics.GenericAPIView):
                 return Response({"message":f"Elevator {label} currently at Floor {elevator.currentFloor.floorNumber}"})
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+class OpenElevatorDoor(generics.GenericAPIView):
+
+    def post(self, request, label, *args, **kwargs):
+        try:
+            elevator = ElevatorModel.objects.get(label=label)
+            return Response({"message":f"Elevator {label} doors open"})
+        except:
+            return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+class CloseElevatorDoor(generics.GenericAPIView):
+
+    def post(self, request, label, *args, **kwargs):
+        try:
+            elevator = ElevatorModel.objects.get(label=label)
+            return Response({"message":f"Elevator {label} doors closed"})
+        except:
+            return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
