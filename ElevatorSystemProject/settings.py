@@ -96,9 +96,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'elevatordb',
         'USER': 'postgres',
-        'PASSWORD': 'Namansharma@1',
+        'PASSWORD': '<Enter your password>',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '<Enter your port>',
     }
 }
 
