@@ -25,7 +25,7 @@ def createFloors(request):
             if numberOfFloors == None:
                 return Response({"message":"No input shared, please share the number of floors you wish to register under the key 'NumberOfFloors'"},status=status.HTTP_401_UNAUTHORIZED)
             currentFloorCount = FloorModel.objects.count()
-            for i in range(1,abs(currentFloorCount-numberOfFloors)+1):
+            for i in range(1,numberOfFloors+1):
                 obj = FloorModel.objects.create(floorNumber=currentFloorCount+i)
                 obj.save()
             return Response({"message":f"{numberOfFloors} floors created successfully by {username}"},status=status.HTTP_201_CREATED)
