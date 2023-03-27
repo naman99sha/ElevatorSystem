@@ -6,7 +6,11 @@ import base64
 from django.contrib.auth.models import User
 from rest_framework import status
 from elevator.models import ElevatorModel
-# Create your views here.
+
+# TO REGISTER THE NUMBER OF FLOORS IN THE BUILDING
+# ADMIN ONLY
+# NEEDS BASIC AUTH HEADERS
+# BODY = {"NumberOfFloors":<number>}
 @api_view(['POST'])
 def createFloors(request):
     if request.method == "POST":
@@ -34,8 +38,7 @@ def createFloors(request):
         except:
             return Response({"message":"Needs Basic Authorisation Headers, This action is open for admins only"},status=status.HTTP_401_UNAUTHORIZED)
         
-
-# API For requesting a lift
+# HELPER FUNCTION TO SEE IF THE ELEVATOR IS GOING DOWN NEXT 
 def nextDestinationForElevator(elevator):
     if elevator.requestList.all().count() == 0:
         return False
@@ -46,6 +49,7 @@ def nextDestinationForElevator(elevator):
         else:
             return False
 
+# HELPER FUNCTION TO RETURN AN OPTIMAL ELEVATOR FOR THE GIVEN FLOOR
 def assignOptimalElevator(floor):
     elevatorList = ElevatorModel.objects.filter(status=True,moving=True)
     minDistance = 0
@@ -80,7 +84,9 @@ def assignOptimalElevator(floor):
                 assignedElevator = elevator
     return assignedElevator
 
-
+# TO REQUEST AN ELEVATOR ON A GIVEN FLOOR
+# NEEDS THE FLOOR NUMBER TO ACT AS AN ID 
+# NEEDS THE DESTINATION FLOOR IN THE QUERY PARAMS/URL AS destination=<destination floor number>
 @api_view(['GET'])
 def requestElevator(request,floorNumber):
     try:

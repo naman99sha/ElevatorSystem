@@ -7,7 +7,8 @@ from django.contrib.auth.models import User
 from .serializer import ElevatorSerializer
 import base64
 from floor.models import FloorModel
-# Create your views here.
+
+# HELPER FUNCTION TO CHECK IF THE USER REQUESTING THE ACTION IS AN ADMIN
 def checkForAuthentication(encoded):
     try:
         if encoded.split(" ")[0] != 'Basic':
@@ -24,6 +25,10 @@ def checkForAuthentication(encoded):
     except:
         return Response({"message":"Needs Basic Authorisation Headers, This action is open for admins only"},status=status.HTTP_401_UNAUTHORIZED)
 
+# TO INITIALIZE ELEVATORS
+# ADMIN ONLY
+# NEEDS BASIC-AUTH HEADERS
+# BODY = {"n":<number of elevators>}
 class CreateElevator(generics.GenericAPIView):
     serializer_class = ElevatorSerializer
 
@@ -45,7 +50,10 @@ class CreateElevator(generics.GenericAPIView):
             elevator = serializer.save()
         return Response({"message":f"{numberOfElevators} Elevators created successfully by {user.username}"},status=status.HTTP_201_CREATED)
 
-
+# TO GET THE REQUEST LIST OF AN ELEVATOR
+# ADMIN ONLY
+# NEEDS BASIC AUTH HEADERS
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class RequestListElevator(generics.GenericAPIView):
 
     def get(self, request, label, *args, **kwargs):
@@ -66,6 +74,10 @@ class RequestListElevator(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+# TO MARK AN ELEVATOR AS ACTIVE OR UNDER MAINTENANCE
+# ADMIN ONLY
+# NEEDS BASIC AUTH HEADERS
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class ChangeElevatorStatus(generics.GenericAPIView):
     def post(self, request, label, *args, **kwargs):
 
@@ -89,7 +101,8 @@ class ChangeElevatorStatus(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator {label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
 
-        
+# TO GET THE ELEVATOR GO UP A FLOOR
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class ElevatorGoUp(generics.GenericAPIView):
 
     def post(self, request, label, *args, **kwargs):
@@ -121,6 +134,8 @@ class ElevatorGoUp(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+# TO GET THE ELEVATOR GO DOWN A FLOOR
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class ElevatorGoDown(generics.GenericAPIView):
 
     def post(self, request, label, *args, **kwargs):
@@ -152,6 +167,10 @@ class ElevatorGoDown(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+
+# TO START/STOP AN ELEVATOR
+# IF ELEVATOR IS IN START MODE BEFORE, IT WILL STOP AND VICE VERSA
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class ChangeElevatorMoving(generics.GenericAPIView):
 
     def post(self, request, label, *args, **kwargs):
@@ -170,6 +189,8 @@ class ChangeElevatorMoving(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+# TO GET THE ELEVATOR'S CURRENT FLOOR
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class GetElevatorCurrentFloor(generics.GenericAPIView):
 
     def get(self, request, label, *args, **kwargs):
@@ -182,6 +203,8 @@ class GetElevatorCurrentFloor(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+# TO OPEN ELEVATOR DOORS
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class OpenElevatorDoor(generics.GenericAPIView):
 
     def post(self, request, label, *args, **kwargs):
@@ -198,6 +221,8 @@ class OpenElevatorDoor(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+# TO CLOSE ELEVATOR DOORS
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class CloseElevatorDoor(generics.GenericAPIView):
 
     def post(self, request, label, *args, **kwargs):
@@ -214,6 +239,7 @@ class CloseElevatorDoor(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+# HELPER FUNCTION TO FIND THE NEXT DESTINATION FLOOR FOR AN ELEVATOR OPTIMALLY
 def nextDestinationForElevator(elevator):
     nextDestinationFloor = elevator.requestList.all().order_by("floorNumber").first()
     if nextDestinationFloor.floorNumber < elevator.currentFloor.floorNumber:
@@ -229,6 +255,8 @@ def nextDestinationForElevator(elevator):
             nextDestinationFloor = elevator.requestList.filter(floorNumber__lte=nextDestinationFloor.floorNumber).order_by("floorNumber").first()
             return nextDestinationFloor
         
+# TO RETURN ELEVATOR'S NEXT DESTINATION
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class GetElevatorNextDestination(generics.GenericAPIView):
 
     def get(self, request, label, *args, **kwargs):
@@ -247,6 +275,8 @@ class GetElevatorNextDestination(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+# TO SEE IF AN ELEVATOR IS GOING UP OR DOWN ACCORDING TO IT'S NEXT DESTINATION
+# NEEDS THE ELEVATOR LABEL TO ACT AS AN ID 
 class ElevatorGoingUpOrDown(generics.GenericAPIView):
 
     def get(self, request, label, *args, **kwargs):

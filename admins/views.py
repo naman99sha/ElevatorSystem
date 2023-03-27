@@ -2,7 +2,9 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from .serializer import adminUserSerializer
 
-# Create your views here.
+# TO CREATE AN ELEVATOR ADMIN
+# BODY = {"email":<email>, "password":<password>}
+# PASSWORD MUST HAVE AT LEAST 8 CHARACTERS, WITH AT LEAST 1 UPPER CASE, 1 LOWER CASE, 1 NUMERIC AND EITHER '@','$' OR '_' IN IT
 class CreateAdmin(generics.GenericAPIView):
     serializer_class = adminUserSerializer
 
