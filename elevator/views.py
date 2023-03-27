@@ -151,3 +151,15 @@ class ChangeElevatorMoving(generics.GenericAPIView):
                 return Response({"message":f"Elevator {elevator.label} is moving"}, status=status.HTTP_200_OK)
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+class GetElevatorCurrentFloor(generics.GenericAPIView):
+
+    def get(self, request, label, *args, **kwargs):
+        try:
+            elevator = ElevatorModel.objects.get(label=label)
+            if elevator.currentFloor == None:
+                return Response({"message":f"Elevator {label} currently at ground floor"})
+            else:
+                return Response({"message":f"Elevator {label} currently at Floor {elevator.currentFloor.floorNumber}"})
+        except:
+            return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
