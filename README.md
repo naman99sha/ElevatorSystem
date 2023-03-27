@@ -80,3 +80,10 @@ Rest of the endpoints can be triggered in any order. They are mentioned below:
 
 #### To see if an elevator is going up or down
 - You will need to send a get request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/movement``` using Postman, where the 'label' will be replaced by the elevator label of which you want to see if it is going up or down.
+
+## Model Structure
+In this project, we are using 3 tables, 1 for admin users, 1 for floors and 1 for elevators
+
+- ADMIN USERS : email, username(same as email), password
+- FLOOR : floorNumber(unique for every floor, e.g. 1,2)
+- ELEVATOR : label(unique for every elevator), status(to mark an elevator as active/under maintenance), currentFloor, moving(to see if an elevator is stopped or not), requestList(Many to Many List to see how many floors are assigned to an elevator)
