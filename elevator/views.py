@@ -64,6 +64,30 @@ class RequestListElevator(generics.GenericAPIView):
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
         
+class ChangeElevatorStatus(generics.GenericAPIView):
+    def post(self, request, label, *args, **kwargs):
+
+        encoded = request.headers.get('Authorization')
+        temp = checkForAuthentication(encoded)
+        try:
+            if temp.username:
+                user = temp
+        except AttributeError: return temp
+        try:
+            elevator = ElevatorModel.objects.get(label = label)
+            statusVal = request.data.get("status")
+            if statusVal == None:
+                return Response({"message":f"No input shared, please share the status to be set for the elevator {label} under the key 'status' as true or false"}, status=status.HTTP_400_BAD_REQUEST)
+            elevator.status = statusVal
+            elevator.save()
+            if statusVal:
+                return Response({"message":f"Elevator {label} marked as active by {user.username}"},status=status.HTTP_201_CREATED)
+            else:
+                return Response({"message":f"Elevator {label} marked as under maintenance by {user.username}"},status=status.HTTP_201_CREATED)
+        except:
+            return Response({"message":f"Elevator {label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+
+        
 class ElevatorGoUp(generics.GenericAPIView):
 
     def post(self, request, label, *args, **kwargs):
