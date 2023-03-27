@@ -54,3 +54,29 @@ Rest of the endpoints can be triggered in any order. They are mentioned below:
 - You will need to send a get request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/request-list``` using Postman, where the 'label' will be replaced by the elevator label of which you want the request list.
 - You will need Basic Auth Headers in Postman which will contain the details of your admin user as username and password.
 - This will return a list of floors assigned to the mentioned elevator.
+
+###### To mark the elevator as active/under maintenance
+- You will need to send a post request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/set-status``` using Postman, where the 'label' will be replaced by the elevator label of which you want to change the status.
+- You will need Basic Auth Headers in Postman which will contain the details of your admin user as username and password.
+- You will also need a response body which will contain the status for the elevator which will look like {"status":true/false}.(true for active, false for under maintenance)
+
+#### To make the elevator go up and down
+- You will need to send a post request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/up``` using Postman, where the 'label' will be replaced by the elevator label which you want to go up.
+- To make the elevator fo down, You will need to send a post request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/down``` using Postman, where the 'label' will be replaced by the elevator label which you want to go down.
+
+#### To start/stop the elevator
+- You will need to send a post request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/change-moving``` using Postman, where the 'label' will be replaced by the elevator label which you want to start/stop.
+- If the elevator passed was already in motion, it will stop. If the elevator was already stopped it will start.
+
+#### To open/close the elevator doors
+- You will need to send a post request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/open-door``` using Postman, where the 'label' will be replaced by the elevator label of which you want to open the doors.
+- To make the elevator fo down, You will need to send a post request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/close-door``` using Postman, where the 'label' will be replaced by the elevator label of which you want to open the doors.
+
+#### To get an elevator's current floor
+- You will need to send a get request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/current-floor``` using Postman, where the 'label' will be replaced by the elevator label of which you want to get the current floor.
+
+#### To get an elevator's next destination floor
+- You will need to send a get request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/next-destination``` using Postman, where the 'label' will be replaced by the elevator label of which you want to get the next destination floor.
+
+#### To see if an elevator is going up or down
+- You will need to send a get request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/movement``` using Postman, where the 'label' will be replaced by the elevator label of which you want to see if it is going up or down.
