@@ -57,6 +57,8 @@ class RequestListElevator(generics.GenericAPIView):
         except AttributeError: return temp
         try:
             elevator = ElevatorModel.objects.get(label=label)
+            if elevator.status == False:
+                return Response({"message":f"Elevator {label} under maintenance"},status=status.HTTP_400_BAD_REQUEST)
             temp = []
             for i in elevator.requestList.all():
                 temp.append(f"Floor Number {i.floorNumber}")
@@ -93,6 +95,13 @@ class ElevatorGoUp(generics.GenericAPIView):
     def post(self, request, label, *args, **kwargs):
         try:
             elevator = ElevatorModel.objects.get(label=label)
+            if elevator.status == False:
+                return Response({"message":f"Elevator {label} under maintenance"},status=status.HTTP_400_BAD_REQUEST)
+            if elevator.moving == False:
+                if elevator.currentFloor != None:
+                    return Response({"message":f"Elevator {label} stopped on floor {elevator.currentFloor.floorNumber}"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"message":f"Elevator {label} stopped on ground floor"},status=status.HTTP_400_BAD_REQUEST)
             if elevator.currentFloor == None:
                 elevator.currentFloor = FloorModel.objects.get(floorNumber=1)
                 elevator.save()
@@ -117,6 +126,13 @@ class ElevatorGoDown(generics.GenericAPIView):
     def post(self, request, label, *args, **kwargs):
         try:
             elevator = ElevatorModel.objects.get(label=label)
+            if elevator.status == False:
+                return Response({"message":f"Elevator {label} under maintenance"},status=status.HTTP_400_BAD_REQUEST)
+            if elevator.moving == False:
+                if elevator.currentFloor != None:
+                    return Response({"message":f"Elevator {label} stopped on floor {elevator.currentFloor.floorNumber}"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"message":f"Elevator {label} stopped on ground floor"},status=status.HTTP_400_BAD_REQUEST)
             if elevator.currentFloor == None:
                 return Response({"message":f"Elevator {label} already on ground floor"},status=status.HTTP_400_BAD_REQUEST)
             else:
@@ -141,6 +157,8 @@ class ChangeElevatorMoving(generics.GenericAPIView):
     def post(self, request, label, *args, **kwargs):
         try:
             elevator = ElevatorModel.objects.get(label=label)
+            if elevator.status == False:
+                return Response({"message":f"Elevator {label} under maintenance"},status=status.HTTP_400_BAD_REQUEST)
             if elevator.moving:
                 elevator.moving = False
                 elevator.save()
@@ -169,6 +187,13 @@ class OpenElevatorDoor(generics.GenericAPIView):
     def post(self, request, label, *args, **kwargs):
         try:
             elevator = ElevatorModel.objects.get(label=label)
+            if elevator.status == False:
+                return Response({"message":f"Elevator {label} under maintenance"},status=status.HTTP_400_BAD_REQUEST)
+            if elevator.moving == False:
+                if elevator.currentFloor != None:
+                    return Response({"message":f"Elevator {label} stopped on floor {elevator.currentFloor.floorNumber}"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"message":f"Elevator {label} stopped on ground floor"},status=status.HTTP_400_BAD_REQUEST)
             return Response({"message":f"Elevator {label} doors open"})
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
@@ -178,6 +203,68 @@ class CloseElevatorDoor(generics.GenericAPIView):
     def post(self, request, label, *args, **kwargs):
         try:
             elevator = ElevatorModel.objects.get(label=label)
+            if elevator.status == False:
+                return Response({"message":f"Elevator {label} under maintenance"},status=status.HTTP_400_BAD_REQUEST)
+            if elevator.moving == False:
+                if elevator.currentFloor != None:
+                    return Response({"message":f"Elevator {label} stopped on floor {elevator.currentFloor.floorNumber}"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"message":f"Elevator {label} stopped on ground floor"},status=status.HTTP_400_BAD_REQUEST)
             return Response({"message":f"Elevator {label} doors closed"})
+        except:
+            return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+def nextDestinationForElevator(elevator):
+    nextDestinationFloor = elevator.requestList.all().order_by("floorNumber").first()
+    if nextDestinationFloor.floorNumber < elevator.currentFloor.floorNumber:
+        if elevator.requestList.filter(floorNumber__lte=nextDestinationFloor.floorNumber).count() > elevator.requestList.filter(floorNumber__gt=nextDestinationFloor.floorNumber):
+            return nextDestinationFloor
+        else:
+            nextDestinationFloor = elevator.requestList.filter(floorNumber__gt=nextDestinationFloor.floorNumber).order_by("floorNumber").first()
+            return nextDestinationFloor
+    else:
+        if elevator.requestList.filter(floorNumber__lte=nextDestinationFloor.floorNumber).count() < elevator.requestList.filter(floorNumber__gt=nextDestinationFloor.floorNumber).count():
+            return nextDestinationFloor
+        else:
+            nextDestinationFloor = elevator.requestList.filter(floorNumber__lte=nextDestinationFloor.floorNumber).order_by("floorNumber").first()
+            return nextDestinationFloor
+        
+class GetElevatorNextDestination(generics.GenericAPIView):
+
+    def get(self, request, label, *args, **kwargs):
+        try:
+            elevator = ElevatorModel.objects.get(label=label)
+            if elevator.status == False:
+                return Response({"message":f"Elevator {label} under maintenance"},status=status.HTTP_400_BAD_REQUEST)
+            if elevator.moving == False:
+                if elevator.currentFloor != None:
+                    return Response({"message":f"Elevator {label} stopped on floor {elevator.currentFloor.floorNumber}"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"message":f"Elevator {label} stopped on ground floor"},status=status.HTTP_400_BAD_REQUEST)
+            if elevator.requestList.all().count() == 0:
+                return Response({"message":f"Elevator {label} has no next destination"},status=status.HTTP_200_OK)
+            return Response({"message":f"Elevator {label} going to floor {nextDestinationForElevator(elevator).floorNumber} next"},status=status.HTTP_200_OK)
+        except:
+            return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
+        
+class ElevatorGoingUpOrDown(generics.GenericAPIView):
+
+    def get(self, request, label, *args, **kwargs):
+        try:
+            elevator = ElevatorModel.objects.get(label=label)
+            if elevator.status == False:
+                return Response({"message":f"Elevator {label} under maintenance"},status=status.HTTP_400_BAD_REQUEST)
+            if elevator.moving == False:
+                if elevator.currentFloor != None:
+                    return Response({"message":f"Elevator {label} stopped on floor {elevator.currentFloor.floorNumber}"},status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({"message":f"Elevator {label} stopped on ground floor"},status=status.HTTP_400_BAD_REQUEST)
+            if elevator.requestList.all().count() == 0:
+                return Response({"message":f"Elevator {label} isn't going anywhere"},status=status.HTTP_200_OK)
+            temp = nextDestinationForElevator(elevator).floorNumber
+            if temp > elevator.currentFloor.floorNumber or elevator.currentFloor == None:
+                return Response({"message":f"Elevator {label} going up"},status=status.HTTP_200_OK)
+            else:
+                return Response({"message":f"Elevator {label} going down"},status=status.HTTP_200_OK)
         except:
             return Response({"message":f"Elevator with label={label} does not exist"},status=status.HTTP_400_BAD_REQUEST)
