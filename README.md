@@ -58,7 +58,7 @@ Rest of the endpoints can be triggered in any order. They are mentioned below:
 ###### To mark the elevator as active/under maintenance
 - You will need to send a post request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/set-status``` using Postman, where the 'label' will be replaced by the elevator label of which you want to change the status.
 - You will need Basic Auth Headers in Postman which will contain the details of your admin user as username and password.
-- You will also need a response body which will contain the status for the elevator which will look like {"status":true/false}.(true for active, false for under maintenance)
+- You will also need a response body which will contain the status for the elevator which will look like {"status":true/false}.true for active, false for under maintenance
 
 #### To make the elevator go up and down
 - You will need to send a post request on the endpoint ```http://127.0.0.1:8000/elevator/<label>/up``` using Postman, where the 'label' will be replaced by the elevator label which you want to go up.
