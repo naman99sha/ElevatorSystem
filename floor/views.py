@@ -37,43 +37,45 @@ def createFloors(request):
 
 # API For requesting a lift
 def nextDestinationForElevator(elevator):
-    print(elevator.requestList.all().order_by("floorNumber")[0])
-    nextDestinationFloor = elevator.requestList.all().order_by("floorNumber")[0]
-    if nextDestinationFloor.floorNumber < elevator.currentFloor.floorNumber:
-        return True
-    else:
+    if elevator.requestList.all().count() == 0:
         return False
+    else:
+        nextDestinationFloor = elevator.requestList.all().order_by("floorNumber").first()
+        if nextDestinationFloor.floorNumber < elevator.currentFloor.floorNumber:
+            return True
+        else:
+            return False
 
 def assignOptimalElevator(floor):
     elevatorList = ElevatorModel.objects.filter(status=True,moving=True)
     minDistance = 0
     assignedElevator = None
     for elevator in elevatorList:
-        if elevator.currentFloor != None and elevator.requestList.all() != []:
+        if elevator.currentFloor != None and not elevator.requestList.all().count() == 0:
             if elevator.currentFloor == floor:
                 return elevator
             else:
                 isElevatorGoingDown = nextDestinationForElevator(elevator)
                 if isElevatorGoingDown:
                     if elevator.currentFloor.floorNumber > floor.floorNumber:        
-                        if minDistance >= abs(elevator.currentFloor.floorNumber - floor.floorNumber):
+                        if minDistance == 0 or minDistance >= abs(elevator.currentFloor.floorNumber - floor.floorNumber):
                             minDistance = abs(elevator.currentFloor.floorNumber - floor.floorNumber)
                             assignedElevator = elevator
                 else:
                     if elevator.currentFloor.floorNumber < floor.floorNumber:        
-                        if minDistance >= abs(elevator.currentFloor.floorNumber - floor.floorNumber):
+                        if minDistance == 0 or minDistance >= abs(elevator.currentFloor.floorNumber - floor.floorNumber):
                             minDistance = abs(elevator.currentFloor.floorNumber - floor.floorNumber)
                             assignedElevator = elevator
-        elif elevator.currentFloor != None and elevator.requestList.all() == []:
-            if minDistance >= abs(elevator.currentFloor.floorNumber - floor.floorNumber):
+        elif elevator.currentFloor != None and elevator.requestList.all().count() == 0:
+            if minDistance == 0 or minDistance >= abs(elevator.currentFloor.floorNumber - floor.floorNumber):
                 minDistance = abs(elevator.currentFloor.floorNumber - floor.floorNumber)
                 assignedElevator = elevator
-        elif elevator.currentFloor == None and elevator.requestList.all() != []:
-            if minDistance >= floor.floorNumber:
+        elif elevator.currentFloor == None and not elevator.requestList.all().count() == 0:
+            if minDistance == 0 or minDistance >= floor.floorNumber:
                 minDistance = floor.floorNumber
                 assignedElevator = elevator
         else:
-            if minDistance >= floor.floorNumber:
+            if minDistance == 0 or minDistance >= floor.floorNumber:
                 minDistance = floor.floorNumber
                 assignedElevator = elevator
     return assignedElevator
